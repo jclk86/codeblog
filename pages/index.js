@@ -3,13 +3,15 @@ import PageLayout from 'components/PageLayout';
 import AuthorIntro from 'components/AuthorIntro';
 import CardItem from 'components/CardItem';
 import CardListItem from 'components/CardListItem';
+import { getAllBlogs } from 'lib/api';
 
-function Home(props) {
+function Home({ blogs }) {
+  // debugger 
   return (
     <PageLayout>
       <AuthorIntro />
       <hr/>
-      {props.message}
+      {JSON.stringify(blogs)}
       <Row className="mb-5">
         <Col md="10">
           <CardListItem />
@@ -28,9 +30,10 @@ export default Home
 // Provides props to your page
 // It will create static page  
 export async function getStaticProps() {
+  const blogs = await getAllBlogs();
   return {
     props: {
-      message: "Hello World"
+      blogs
     }
   }
 }
