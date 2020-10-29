@@ -1,8 +1,9 @@
 import PageLayout from 'components/PageLayout';
-import { getBlogBySlug } from 'lib/api';
+import { getAllBlogs, getBlogBySlug } from 'lib/api';
 
 
 function BlogDetail({blog}) {
+
   // gets url information, with query matching the parameter in url
   // Not defined initially. So for render, need query.?slug or else will cause error for now. 
   // const { query } = useRouter(); was here. We don't need this here anymore because the 
@@ -30,11 +31,26 @@ function BlogDetail({blog}) {
 // }
 
 export async function getStaticProps({params}) {
+
   const blog = await getBlogBySlug(params.slug);
   return {
     props: {
       blog
     }
+  }
+}
+// used with dynamic routes. Gets list of defined paths and renders html of those paths at build time.
+// executed during build before getStaticProps
+export async function getStaticPaths() {
+  const blogs = await getAllBlogs();
+
+  // follow structure of getStaticPaths return 
+  const paths = blogs?.map(blog => ({ params: { slug: blog.slug } }));
+
+  return {
+    paths: paths,
+    // if page is not found
+    fallback: false
   }
 }
 
