@@ -8,8 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@sanity/block-content-to-react": "^2.0.7",
     "@sanity/client": "^2.0.1",
     "bootstrap": "4.5.0",
+    "highlight.js": "10.0.3",
     "next": "10.0.0",
     "react": "17.0.1",
     "react-bootstrap": "1.0.1",
