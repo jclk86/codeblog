@@ -1,5 +1,7 @@
 import PageLayout from 'components/PageLayout';
+import BlogHeader from 'components/BlogHeader';
 import { getAllBlogs, getBlogBySlug } from 'lib/api';
+import { Row, Col } from 'react-bootstrap';
 
 
 function BlogDetail({blog}) {
@@ -11,7 +13,20 @@ function BlogDetail({blog}) {
     // blog.slug already has a slug.current field defined in lib/api blogField, which is why blog.slug works. 
   return (
     <PageLayout>
-      <h1>Hello Detail Page - {blog.slug}</h1>
+      <Row>
+        <Col md={{ span: 10, offset: 1 }}>
+          <BlogHeader
+            title={blog.title}
+            subtitle={blog.subtitle}
+            coverImage={blog.coverImage}
+            author={blog.author}
+            date={blog.date}
+          />
+          <hr/>
+          {/* Blog Content Here */}
+          It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
+        </Col>
+      </Row>
     </PageLayout>
   )
 }
