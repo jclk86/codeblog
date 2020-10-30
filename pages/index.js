@@ -1,22 +1,38 @@
+import { useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import PageLayout from 'components/PageLayout';
 import AuthorIntro from 'components/AuthorIntro';
 import CardItem from 'components/CardItem';
 import CardListItem from 'components/CardListItem';
+import FilteringMenu from 'components/FilteringMenu';
 import { getAllBlogs } from 'lib/api';
 
 function Home({ blogs }) {
   // debugger - hover on blog in inspect and go to sources + reload to see object
+  const [filter, setFilter ] = useState({
+    view: { list : 0 } // 0 = card view. 1 = list view. 
+  })
+
   return (
     <PageLayout>
       <AuthorIntro />
+      <FilteringMenu 
+        filter={filter} // state passed down
+        onChange={(option, value) => {
+          setFilter({...filter, [option]: value })
+        }}
+      />
       <hr/>
       <Row className="mb-5">
        {/* <Col md="10">
           <CardListItem />
           </Col> */}
-        
       { blogs.map(blog => 
+        filter.view.list ? 
+        <Col key={`${blog.slug}-list`} md="9">
+          <CardListItem />
+        </Col>
+        :
         <Col key={blog.slug} md="4">
           <CardItem 
             author={blog.author}
