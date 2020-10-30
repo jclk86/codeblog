@@ -14,13 +14,26 @@ const serializers = {
         </HighlightCode>
       )
     },
-    image: ({ node: { asset, alt } }) => {
-      
+    image: ({ node: { asset, alt, position = 'center' } }) => {
       // debugger; to see the props passed in here. That's how we know what to destructure
+      // gets destructured with spread operator into the div className"blog-image"
+      // let style = {};
+      // if(position === 'left') {
+      //   style.float = position;
+      //   style.marginRight = '30px'
+      // }
+
+      // if(position === 'right') {
+      //   style.float = position;
+      //   style.marginLeft = '30px'
+      // }
+
+      // below uses css and class name instead with template string ${position}, so no styling code here. 
+
       // if you add your own custom img element here, the imageOptions styling no longer works.
       // urlFor(asset).url(). Not need for asset.url, smart enough to find url. url() returns explicit url
       return ( 
-        <div className="blog-image">
+        <div className={`blog-image blog-image-${position}`}>
           <img src={urlFor(asset.url).height(300).fit('max').url()} />
           <div className="image-alt">{alt}</div>
         </div>
