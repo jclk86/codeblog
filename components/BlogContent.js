@@ -2,7 +2,7 @@ import BlockContent from '@sanity/block-content-to-react';
 import HighlightCode from 'components/HighlightCode';
 import { urlFor } from 'lib/api';
 
-// for code-input - rendering rich text format in react. Rich text is used for code.
+// for code-input - rendering rich text format in react. Rich text is used for code here.
 // props.node. node: is destructuring out language and code and filename
 const serializers = {
   types: {
@@ -28,7 +28,7 @@ const serializers = {
     }
   }
 }
-// serializes content. Searches for the types defined and executes for those element types. 
+// serializes content. Searches for the types defined and executes for those element types. ***
 function BlogContent({content}) {
   return (
     <BlockContent 

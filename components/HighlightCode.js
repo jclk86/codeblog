@@ -11,7 +11,7 @@ function HighlightCode({ children, language }) {
   const code = createRef();
 
   useEffect(() => {
-    debugger
+    // debugger
     highlight.highlightBlock(findDOMNode(code.current));
   }, [])
 

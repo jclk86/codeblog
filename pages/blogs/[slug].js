@@ -47,7 +47,8 @@ function BlogDetail({blog}) {
 //     }
 //   }
 // }
-
+// params is from context. Has a params property. We use it in getBlogBySlug and pass that blog
+// to props in above component
 export async function getStaticProps({params}) {
 
   const blog = await getBlogBySlug(params.slug);
@@ -62,7 +63,7 @@ export async function getStaticProps({params}) {
 export async function getStaticPaths() {
   const blogs = await getAllBlogs();
 
-  // follow structure of getStaticPaths return 
+  // follow structure of getStaticPaths return to override
   const paths = blogs?.map(blog => ({ params: { slug: blog.slug } }));
 
   return {
