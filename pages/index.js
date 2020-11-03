@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Button } from 'react-bootstrap';
 
 import PageLayout from 'components/PageLayout';
 import AuthorIntro from 'components/AuthorIntro';
-import CardItem from 'components/CardItem';
-import CardListItem from 'components/CardListItem';
 import FilteringMenu from 'components/FilteringMenu';
 
+import { useGetBlogsPages } from 'actions/pagination';
 import { getAllBlogs } from 'lib/api';
-import { useGetBlogs } from 'actions';
+// import { useGetBlogs } from 'actions'; - moved to actions.pagination
 
 // We want to pass this in so it makes our useSWR more reusable. You could decide to use axios. 
 // PLACED IN ACTIONS FOLDER
@@ -17,15 +16,17 @@ import { useGetBlogs } from 'actions';
 // blogs: initialData destructures the object provided by getStaticProps and assigns the value 
   // to initialData. Then this initialData is sent into the useSWR, which is useGetBlogs here. 
   // useSWR(unique ID, fetcher, initialData ) => useSWR('api/blogs', fetcher, { initialData })
-function Home({ blogs: initialData }) {
+  // was home({ blogs: initialData }) - changed with pagination lesson
+function Home({ blogs }) {
   // debugger - hover on blog in inspect and go to sources + reload to see object
   const [filter, setFilter ] = useState({
-    view: { list : 0 } // 0 = card view. 1 = list view. 
-  })
+    view: { list : 0 }, // 0 = card view. 1 = list view.
+    date: { asc: 0 } 
+  });
   
   // useGetBlogs catches the initial props values and then executes the fetcher that's passed through,
   // which sues the api/blogs route to get new up-to-date data/blogs
-  const { data: blogs, error } = useGetBlogs(initialData);
+  // const { data: blogs, error } = useGetBlogs(initialData); - MOVED to actions/pagination
   
   //********************************************************** */
   // ALL PLACED IN ACTIONS FOLDER NOW - hook function (a function that wraps around a hook) gets imported here
@@ -49,48 +50,39 @@ function Home({ blogs: initialData }) {
   // const { data, error } = useSWR('/api/hello', fetcher);
   
   //********************************************************** */
+
+  // blogs and filter passed from above
+  // these 4 are provided from useSWRPages 
+  const {
+    pages, // components returned from useGetBlogsPages - use below to be rendered, as useGetBlogsPages from actions/pagination returns a component
+    isLoadingMore, // boolean - is true whenever we are making request to fetch data
+    isReachingEnd, // boolean - is true when we loaded all of the data, data is empty array. 
+    loadMore // function to load more data. Will re-execute the second parameter callback function in useSWRPages
+  } = useGetBlogsPages({blogs, filter});
+
   return (
     <PageLayout>
       <AuthorIntro />
       <FilteringMenu 
         filter={filter} // state passed down
-        onChange={(option, value) => {
+        onChange={(option, value) => 
           setFilter({...filter, [option]: value })
-        }}
+        }
       />
       <hr/>
       <Row className="mb-5">
-        { blogs.map(blog => 
-          filter.view.list ? 
-          <Col key={`${blog.slug}-list`} md="9">
-            <CardListItem
-              author={blog.author}
-              title={blog.title}
-              subtitle={blog.subtitle}
-              date={blog.date}
-              link={{
-                href: '/blogs/[slug]',
-                as: `/blogs/${blog.slug}`
-              }}
-            />
-          </Col>
-          :
-          <Col key={blog.slug} md="4">
-            <CardItem 
-              author={blog.author}
-              title={blog.title}
-              subtitle={blog.subtitle}
-              date={blog.date}
-              image={blog.coverImage}
-              link={{
-                href: '/blogs/[slug]',
-                as: `/blogs/${blog.slug}`
-              }}
-            />  
-          </Col> 
-          )
-        }
+        { pages }
       </Row>
+      <div style={{textAlign: 'center'}}>
+        <Button
+          onClick={loadMore} // from loadMore above in useGetBlogs
+          disabled={isReachingEnd || isLoadingMore} // if in process of loading more data, can't keep pressing it
+          size="lg"
+          variant="outline-secondary"
+        >
+          {isLoadingMore ? '...' : isReachingEnd ? 'No more blogs' : 'More Blogs'}
+        </Button>
+      </div>
     </PageLayout>
   )
 }
@@ -103,7 +95,7 @@ export default Home
 export async function getStaticProps() {
   // offset how much data to skip... This method prevents hardcoding [0...5] 
   // from slice operation in query of lib/api.js
-  const blogs = await getAllBlogs( { offset: 0 } );
+  const blogs = await getAllBlogs( { offset: 0, date: 'desc' } );
   return {
     props: {
       blogs

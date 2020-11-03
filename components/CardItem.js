@@ -49,4 +49,4 @@ function CardItem({title, subtitle, date, image, author, link }) {
 
 export default CardItem
 
-// card.image components urlFor overwrites the original set cropping in the block content.
+// card.image components urlFor styles around what was set in studio
