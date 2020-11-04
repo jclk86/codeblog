@@ -3,8 +3,11 @@ import { useEffect } from 'react';
 import { useSWRPages } from 'swr';
 import { useGetBlogs } from 'actions';
 import { Col } from 'react-bootstrap';
+import CardItemBlank from 'components/CardItemBlank';
 import CardItem from 'components/CardItem';
 import CardListItem from 'components/CardListItem';
+import CardListItemBlank from 'components/CardListItemBlank';
+
 // https://github.com/Jerga99/codeblog/commit/c598fb509cb422f53ab084609a0ed3892a276b31
 
 // now uses useSWRInfinite - see above commit for changes
@@ -15,6 +18,9 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
   useEffect(() => {
     // adds to window object (which is only avialable in browser) - we need this to have initial data sorted. 
     // no dependency, so runs once at time of render. 
+    
+    //* my guess is the server executes with initial data passed from getStaticProps. since window is not available 
+    //* in server environment, the below if(typeof window !== undefined...)... does not execute. Because window is undefined there. 
     window.__pagination__init = true;
   }, []);
 
@@ -29,16 +35,34 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
       
       // if no offset, then passing initial data. So will be determine when to supply initialData.
       // if offset, don't pass initial data.  
-      let initialData = !offset && blogs;
+      let initialData = !offset && blogs; 
 
-      // deals with changes to initial data
-      if(typeof window !== undefined && window.__pagination__init) {
+      // deals with changes to initial data but on browser. Won't run initially with server, so window
+      // is undefined in the beginning, because window is not on server. 
+      if(typeof window !== 'undefined' && window.__pagination__init) {
         initialData = null; 
       }
+
       // withSWR? 
       const { data: paginatedBlogs  } = withSWR(useGetBlogs( { offset, filter }, initialData));
       
-      if(!paginatedBlogs) { return 'Loading...'}
+      if(!paginatedBlogs) { 
+        // [0,0,0] - basically render 3 placeholders
+        // Effect achieved: this will show briefly before actual images. 
+        // key should not be index, as we know. But since placeholders, it's okay
+        return Array(3)
+          .fill(0)
+          .map((_,i) => 
+            filter.view.list ? 
+              <Col key={i} md="9">
+                <CardItemBlank />
+              </Col>
+            :
+              <Col key={`${i}-item`} md="4">
+                <CardItemBlank />
+              </Col>
+        )
+      }
 
       // return components to display
       return paginatedBlogs
@@ -82,7 +106,7 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
       // below condition means all the data has been fetched. Nothing new. 
       if(SWR.data && SWR.data.length === 0) { return null; }
       // this returns offset, using index. Index represents the current page. 
-      return  ( index + 1 ) * 3; // increment page by 1, then offset by 3. offset should increase by 3 each time.
+      return  ( index + 1 ) * 6; // increment page by 1, then offset by 6. offset should increase by 6 each time.
     },
     // like useEffect, this is a dependency. Or useState. 
     // so we want this view to change based on the filtering
