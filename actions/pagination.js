@@ -7,6 +7,7 @@ import CardItemBlank from 'components/CardItemBlank';
 import CardItem from 'components/CardItem';
 import CardListItem from 'components/CardListItem';
 import CardListItemBlank from 'components/CardListItemBlank';
+import moment from 'moment';
 
 // https://github.com/Jerga99/codeblog/commit/c598fb509cb422f53ab084609a0ed3892a276b31
 
@@ -55,7 +56,7 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
           .map((_,i) => 
             filter.view.list ? 
               <Col key={i} md="9">
-                <CardItemBlank />
+                <CardListItemBlank />
               </Col>
             :
               <Col key={`${i}-item`} md="4">
@@ -73,7 +74,7 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
               author={blog.author}
               title={blog.title}
               subtitle={blog.subtitle}
-              date={blog.date}
+              date={moment(blog.date).format('LLL')}
               link={{
                 href: '/blogs/[slug]',
                 as: `/blogs/${blog.slug}`
@@ -86,7 +87,7 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
               author={blog.author}
               title={blog.title}
               subtitle={blog.subtitle}
-              date={blog.date}
+              date={moment(blog.date).format('LLL')}
               image={blog.coverImage}
               link={{
                 href: '/blogs/[slug]',
