@@ -6,7 +6,7 @@ import AuthorIntro from 'components/AuthorIntro';
 import FilteringMenu from 'components/FilteringMenu';
 
 import { useGetBlogsPages } from 'actions/pagination';
-import { getAllBlogs } from 'lib/api';
+import { getPaginatedBlogs } from 'lib/api';
 // import { useGetBlogs } from 'actions'; - moved to actions.pagination
 
 // We want to pass this in so it makes our useSWR more reusable. You could decide to use axios. 
@@ -95,7 +95,7 @@ export default Home
 export async function getStaticProps() {
   // offset how much data to skip... This method prevents hardcoding [0...5] 
   // from slice operation in query of lib/api.js
-  const blogs = await getAllBlogs( { offset: 0, date: 'desc' } );
+  const blogs = await getPaginatedBlogs( { offset: 0, date: 'desc' } );
   return {
     props: {
       blogs

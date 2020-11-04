@@ -45,7 +45,7 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
       }
 
       // withSWR? 
-      const { data: paginatedBlogs  } = withSWR(useGetBlogs( { offset, filter }, initialData));
+      const { data: paginatedBlogs  } = withSWR(useGetBlogs( { offset, filter }, initialData)); // this initial value is set by server, not client with useEffect.
       
       if(!paginatedBlogs) { 
         // [0,0,0] - basically render 3 placeholders

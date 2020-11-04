@@ -1,12 +1,35 @@
 import PageLayout from 'components/PageLayout';
 import BlogHeader from 'components/BlogHeader';
+import ErrorPage from 'next/error';
 import BlogContent from 'components/BlogContent';
 import { getAllBlogs, getBlogBySlug } from 'lib/api';
 import { Row, Col } from 'react-bootstrap';
 import { urlFor } from 'lib/api';
 import moment from 'moment';
+import { useRouter } from 'next/router';
 
 function BlogDetail({blog}) {
+  const router = useRouter();
+
+  // this addressed getPaginatedBlogs, where a blog beyond offset isn't fetched due to offset. 
+  // So check if this page is a fallback page using router. This is not a fallback page, so we 
+  // want to display 404 error page (next offers error page component you can import)
+  //https://nextjs.org/docs/basic-features/data-fetching
+  // fallback allows for small group of data to be generated first. Then, if set to true, and user
+    // requests more data, a loading screen appears to allow getStaticProps to finish and render the requested data. 
+    // However, fallback will not update generated pages. You need Static Regeneration for that
+  if(!router.isFallback && !blog?.slug) {
+    return <ErrorPage statusCode="404" />
+  }
+
+  if(router.isFallback) {
+
+    return (
+      <PageLayout className="blog-detail-page">
+        Loading...
+      </PageLayout>
+    )
+  }
 
   // gets url information, with query matching the parameter in url
   // Not defined initially. So for render, need query.?slug or else will cause error for now. 
@@ -14,7 +37,7 @@ function BlogDetail({blog}) {
     // getServerSideProps(context) is passed a context object with the params in it. 
     // blog.slug already has a slug.current field defined in lib/api blogField, which is why blog.slug works. 
   return (
-    <PageLayout>
+    <PageLayout className="blog-detail-page">
       <Row>
         <Col md={{ span: 10, offset: 1 }}>
           <BlogHeader
@@ -62,14 +85,16 @@ export async function getStaticProps({params}) {
 // executed during build before getStaticProps
 export async function getStaticPaths() {
   const blogs = await getAllBlogs();
-
+  
   // follow structure of getStaticPaths return to override
   const paths = blogs?.map(blog => ({ params: { slug: blog.slug } }));
 
   return {
     paths: paths,
     // if page is not found
-    fallback: false
+    // if false, provides 404 error page
+    // if true, tries to refetch the blogs using the slug
+    fallback: true
   }
 }
 
