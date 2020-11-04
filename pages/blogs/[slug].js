@@ -1,14 +1,19 @@
+import { useRouter } from 'next/router';
+import ErrorPage from 'next/error';
+
 import PageLayout from 'components/PageLayout';
 import BlogHeader from 'components/BlogHeader';
-import ErrorPage from 'next/error';
+import PreviewAlert from 'components/PreviewAlert';
 import BlogContent from 'components/BlogContent';
-import { getAllBlogs, getBlogBySlug } from 'lib/api';
-import { Row, Col } from 'react-bootstrap';
-import { urlFor } from 'lib/api';
-import moment from 'moment';
-import { useRouter } from 'next/router';
 
-function BlogDetail({blog}) {
+import { urlFor } from 'lib/api';
+import { getAllBlogs, getBlogBySlug } from 'lib/api';
+
+import { Row, Col } from 'react-bootstrap';
+import moment from 'moment';
+
+
+function BlogDetail({blog, preview}) {
   const router = useRouter();
 
   // this addressed getPaginatedBlogs, where a blog beyond offset isn't fetched due to offset. 
@@ -40,6 +45,7 @@ function BlogDetail({blog}) {
     <PageLayout className="blog-detail-page">
       <Row>
         <Col md={{ span: 10, offset: 1 }}>
+          {preview && <PreviewAlert />}
           <BlogHeader
             title={blog.title}
             subtitle={blog.subtitle}
@@ -70,14 +76,23 @@ function BlogDetail({blog}) {
 //     }
 //   }
 // }
-// params is from context. Has a params property. We use it in getBlogBySlug and pass that blog
+// params and preview are from context. Has a params property. We use it in getBlogBySlug and pass that blog
+// This is props for each page. And provided to component above, so destructure anything 
+  // from above props object that you gave it via getStaticProps
 // to props in above component
-export async function getStaticProps({params}) {
-
-  const blog = await getBlogBySlug(params.slug);
+// https://nextjs.org/docs/basic-features/data-fetching
+// receives preview and previewData from pages/api
+export async function getStaticProps({params, preview = false, previewData }) {
+  // console.log("Preview is ", preview)
+  // console.log("previewData: ", previewData)
+  // TODO: pass preview to getBlogBySlug and fetch draft blog
+  // this API fetch determines which sanity client to fetch from depending on preview value
+    // and returns it. The draft data is literally live/freshest form data (no need to hit publish)
+  const blog = await getBlogBySlug(params.slug, preview);
   return {
     props: {
-      blog
+      blog,
+      preview
     }
   }
 }

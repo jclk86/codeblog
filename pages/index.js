@@ -4,6 +4,7 @@ import { Row, Button } from 'react-bootstrap';
 import PageLayout from 'components/PageLayout';
 import AuthorIntro from 'components/AuthorIntro';
 import FilteringMenu from 'components/FilteringMenu';
+import PreviewAlert from 'components/PreviewAlert';
 
 import { useGetBlogsPages } from 'actions/pagination';
 import { getPaginatedBlogs } from 'lib/api';
@@ -17,7 +18,7 @@ import { getPaginatedBlogs } from 'lib/api';
   // to initialData. Then this initialData is sent into the useSWR, which is useGetBlogs here. 
   // useSWR(unique ID, fetcher, initialData ) => useSWR('api/blogs', fetcher, { initialData })
   // was home({ blogs: initialData }) - changed with pagination lesson
-function Home({ blogs }) {
+function Home({ blogs, preview }) {
   // debugger - hover on blog in inspect and go to sources + reload to see object
   const [filter, setFilter ] = useState({
     view: { list : 0 }, // 0 = card view. 1 = list view.
@@ -62,6 +63,7 @@ function Home({ blogs }) {
 
   return (
     <PageLayout>
+      {preview && <PreviewAlert />}
       <AuthorIntro />
       <FilteringMenu 
         filter={filter} // state passed down
@@ -92,13 +94,16 @@ export default Home
 // This function is called during the build (build time)
 // Provides props to your page
 // It will create static page  
-export async function getStaticProps() {
+
+// You need preview here cause once you're in api/preview route, the entire site is under preview mode
+export async function getStaticProps({preview = false}) {
   // offset how much data to skip... This method prevents hardcoding [0...5] 
   // from slice operation in query of lib/api.js
   const blogs = await getPaginatedBlogs( { offset: 0, date: 'desc' } );
   return {
     props: {
-      blogs
+      blogs,
+      preview
     }
   }
 }
