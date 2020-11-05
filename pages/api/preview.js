@@ -20,7 +20,7 @@ async function enablePreview(req, res) {
     // "__prerender_bypass" & "__next_preview_data" in browser 
     // console under "application" and "cookies" tab. You will see a json token for __next_preview_data, but it's encrypted
     
-    // this api endpoint is executed through studio's "open preview" option and its values are passed to slug.js' getStaticProps({params, preview})
+    //***this api endpoint is executed through studio's "open preview" option and its values are passed to slug.js' getStaticProps({params, preview})
   // example: (to see how data flow is like - you will see it's available in browser and printed in studio terminal) 
   // res.setPreviewData({message: "hello world"});
 
