@@ -34,7 +34,7 @@ const serializers = {
       // urlFor(asset).url(). Not need for asset.url, smart enough to find url. url() returns explicit url
       return ( 
         <div className={`blog-image blog-image-${position}`}>
-          <img src={urlFor(asset.url).height(300).fit('max').url()} />
+          <img src={urlFor(asset.url).height(600).fit('max').url()} />
           <div className="image-alt">{alt}</div>
         </div>
       )

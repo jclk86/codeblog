@@ -8,7 +8,8 @@ async function enablePreview(req, res) {
   }
 
   // you want to fetch using getBlogBySlug from lib/api
-  const blog = await getBlogBySlug(req.query.slug);
+  // without true (which is for preview), you can't preview unpublished blogs 
+  const blog = await getBlogBySlug(req.query.slug, true);
 
   if(!blog) {
     res.status(401).json({message: 'Invalid Slug!'})

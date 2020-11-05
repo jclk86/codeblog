@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 
 import { useSWRPages } from 'swr';
 import { useGetBlogs } from 'actions';
@@ -9,6 +9,42 @@ import CardListItem from 'components/CardListItem';
 import CardListItemBlank from 'components/CardListItemBlank';
 import moment from 'moment';
 
+
+const PaginatedBlogList = ({blogs, filter}) => {
+  
+  // return components to display
+  return blogs
+    .map(blog => 
+    filter.view.list ? 
+      <Col key={`${blog.slug}-list`} md="9">
+        <CardListItem
+          author={blog.author}
+          title={blog.title}
+          subtitle={blog.subtitle}
+          date={moment(blog.date).format('LL')}
+          link={{
+            href: '/blogs/[slug]',
+            as: `/blogs/${blog.slug}`
+          }}
+        />
+      </Col>
+      :
+      <Col key={blog.slug} md="6" lg="4">
+        <CardItem 
+          author={blog.author}
+          title={blog.title}
+          subtitle={blog.subtitle}
+          date={moment(blog.date).format('LL')}
+          image={blog.coverImage}
+          link={{
+            href: '/blogs/[slug]',
+            as: `/blogs/${blog.slug}`
+          }}
+        />  
+      </Col> 
+    )
+}
+
 // https://github.com/Jerga99/codeblog/commit/c598fb509cb422f53ab084609a0ed3892a276b31
 
 // now uses useSWRInfinite - see above commit for changes
@@ -16,14 +52,14 @@ import moment from 'moment';
 // this blogs: initialData will be passed in through in index.js or wherever you use this 
 export const useGetBlogsPages = ({ blogs, filter }) => {
   // this only executes in browser environment
-  useEffect(() => {
+  // useEffect(() => {
     // adds to window object (which is only avialable in browser) - we need this to have initial data sorted. 
     // no dependency, so runs once at time of render. 
     
-    //* my guess is the server executes with initial data passed from getStaticProps. since window is not available 
-    //* in server environment, the below if(typeof window !== undefined...)... does not execute. Because window is undefined there. 
-    window.__pagination__init = true;
-  }, []);
+  //   //* my guess is the server executes with initial data passed from getStaticProps. since window is not available 
+  //   //* in server environment, the below if(typeof window !== undefined...)... does not execute. Because window is undefined there. 
+  //   window.__pagination__init = true;
+  // }, []);
 
   return useSWRPages(
     'index-page', // this is just an id - whatever you want
@@ -36,17 +72,23 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
       
       // if no offset, then passing initial data. So will be determine when to supply initialData.
       // if offset, don't pass initial data.  
-      let initialData = !offset && blogs; 
+      // let initialData = !offset && blogs; 
 
       // deals with changes to initial data but on browser. Won't run initially with server, so window
       // is undefined in the beginning, because window is not on server. 
-      if(typeof window !== 'undefined' && window.__pagination__init) {
-        initialData = null; 
+      // if(typeof window !== 'undefined' && window.__pagination__init) {
+      //   initialData = null; 
+      // }
+
+      // withSWR? note: removed initialData as second parameter of useGetBlogs
+      // error will return here automatically if failed 
+      const { data: paginatedBlogs, error  } = withSWR(useGetBlogs( { offset, filter })); // this initial value is set by server, not client with useEffect.
+      
+      if(!offset && !paginatedBlogs && !error) {
+        // load initial blogs 
+        return <PaginatedBlogList blogs={blogs} filter={filter} />
       }
 
-      // withSWR? 
-      const { data: paginatedBlogs  } = withSWR(useGetBlogs( { offset, filter }, initialData)); // this initial value is set by server, not client with useEffect.
-      
       if(!paginatedBlogs) { 
         // [0,0,0] - basically render 3 placeholders
         // Effect achieved: this will show briefly before actual images. 
@@ -59,43 +101,13 @@ export const useGetBlogsPages = ({ blogs, filter }) => {
                 <CardListItemBlank />
               </Col>
             :
-              <Col key={`${i}-item`} md="4">
+              <Col key={`${i}-item`} md="6" lg="4">
                 <CardItemBlank />
               </Col>
         )
       }
-
-      // return components to display
-      return paginatedBlogs
-        .map(blog => 
-        filter.view.list ? 
-          <Col key={`${blog.slug}-list`} md="9">
-            <CardListItem
-              author={blog.author}
-              title={blog.title}
-              subtitle={blog.subtitle}
-              date={moment(blog.date).format('LLL')}
-              link={{
-                href: '/blogs/[slug]',
-                as: `/blogs/${blog.slug}`
-              }}
-            />
-          </Col>
-          :
-          <Col key={blog.slug} md="4">
-            <CardItem 
-              author={blog.author}
-              title={blog.title}
-              subtitle={blog.subtitle}
-              date={moment(blog.date).format('LLL')}
-              image={blog.coverImage}
-              link={{
-                href: '/blogs/[slug]',
-                as: `/blogs/${blog.slug}`
-              }}
-            />  
-          </Col> 
-        )
+      // return PaginatedBlogList here
+      return <PaginatedBlogList blogs={paginatedBlogs} filter={filter} />
     },
     // Here (below) you will compute offset that will get passed into previous callback function with 'withSWR'
     // (so will be input into function above - it is the offset value)

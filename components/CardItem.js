@@ -39,8 +39,6 @@ function CardItem({ title, subtitle, date, image, author, link, mode = 'normal' 
                     src={
                       urlFor(image)
                         .height(300)
-                        .crop('center')
-                        .fit('clip')
                         .url()
                       }
                     alt="Card image cap"
@@ -56,8 +54,12 @@ function CardItem({ title, subtitle, date, image, author, link, mode = 'normal' 
               </>
             :
               <>
-                <Card.Title className="card-main-title">{title}</Card.Title>
-                <Card.Text>{subtitle}</Card.Text>
+                <Card.Title className="card-main-title">
+                  { title.length > 10 ? title.substr(0,10) + '...' : title }
+                </Card.Title>
+                <Card.Text>
+                  { subtitle.length > 10 ? subtitle.substr(0,10) + '...' : subtitle }
+                </Card.Text>
               </>
           }
         </Card.Body>

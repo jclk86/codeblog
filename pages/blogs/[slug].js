@@ -51,7 +51,7 @@ function BlogDetail({blog, preview}) {
             subtitle={blog.subtitle}
             coverImage={urlFor(blog.coverImage).height(600).url()}
             author={blog.author}
-            date={moment(blog.date).format('LLL')}
+            date={moment(blog.date).format('LL')}
           />
           <hr/>
           {/* bc api has content appended in query. see lib/api */}
@@ -93,7 +93,8 @@ export async function getStaticProps({params, preview = false, previewData }) {
     props: {
       blog,
       preview
-    }
+    },
+    revalidate: 1
   }
 }
 // used with dynamic routes. Gets list of defined paths and renders html of those paths at build time.
